@@ -80,4 +80,4 @@
 
 - **Custom fonts**: if you are using custom fonts in your readme, make sure you convert the font to base64 and use it in the CSS with the `@font-face` rule.
 - **CSS styling**: in a world full of tailwind, shadcn-ui and other css frameworks, writing plain css can be a pain. I'm sorry for the hassle, but this is the only way to ensure compatibility with Github's markdown rendering that I know of. Feel free to open a PR if you have a better solution.
-
+- **Responsiveness**: %$&/%/&%#$&%&)@#&%$#&

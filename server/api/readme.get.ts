@@ -1,8 +1,5 @@
-import { b64Outfit } from '~/utils/font'
-import { getAccessToken, getCurrentlyPlaying } from '~/utils/spotify'
-
 const GITHUB_README_WIDTH = '100%'
-const GITHUB_README_HEIGHT = 400
+const GITHUB_README_HEIGHT = 380
 
 const NAME = 'Diogo Nogueira'
 const GH_USERNAME = 'isneru'
@@ -31,11 +28,11 @@ export default defineEventHandler(async event => {
 		<foreignObject width="100%" height="100%">
 			<style>
 				@font-face {
-						font-family: 'Outfit';
-						src: url('data:font/woff2;base64,${b64Outfit}') format('woff2');
-						font-weight: 100 900;
-						font-style: normal;
-					}
+					font-family: 'Outfit';
+					src: url('data:font/woff2;base64,${b64Outfit}') format('woff2');
+					font-weight: 100 900;
+					font-style: normal;
+				}
 				
 				:root {
 					--color-burnt-sienna-1: #d77a61;
@@ -44,7 +41,7 @@ export default defineEventHandler(async event => {
 					--color-antiflash-white: #eff1f3;
 					--color-gunmetal: #223843;
 					--color-gunmetal-muted: #5e6e7e;
-					}
+				}
 					
 				* {
 					font-smooth: antialiased;
@@ -58,39 +55,22 @@ export default defineEventHandler(async event => {
 				}
 
 				.container {
-					display: grid;
-					grid-template-areas:
-						"a a c"
-						"b b c"
-						"b b c";
-					grid-template-columns: 1fr 1fr 200px;
+					display: flex;
 					width: 100%;
 					height: 100%;
 					background: var(--color-antiflash-white);
 					padding: 2rem;
-					gap: 3rem;
+					gap: 2rem;
+					justify-content: space-between;
 					border-radius: 30px;
 					box-sizing: border-box;
-				}
-
-				.container > .about {
-					grid-area: a;
-				}
-
-				.container > .tech-stack {
-					grid-area: b;
-				}
-
-				.container > .playing {
-					grid-area: c;
 				}
 
 				.about {
 					display: flex;
 					flex-direction: column;
-					gap: 1rem;
-					flex: 1 1 300px;
-					min-width: 200px;
+					justify-content: space-between;
+					gap: 2rem;
 				}
 
 				.name {
@@ -110,9 +90,11 @@ export default defineEventHandler(async event => {
 
 				.description {
 					font-weight: 400;
+					margin-top: 0.5rem;
 					font-size: 1.2rem;
 					word-break: break-word;
 					text-wrap: balance;
+					max-width: 43ch;
 				}
 
 				.topic {
@@ -125,31 +107,19 @@ export default defineEventHandler(async event => {
 					content: '# ';
 					font-size: 1.2rem;
 					color: var(--color-burnt-sienna-1);
-					top: 4px;
-					left: -48px;
-					width: 32px;
-					height: 32px;
 					font-weight: 700;
 				}
 
-				hr {
-					border: none;
-					height: 1px;
-					background: var(--color-burnt-sienna-3);
-					margin: 1rem 0;  
-				}
-
 				ul {
+					display: flex;
+					flex-direction: column;
 					margin-top: 0.5rem;
 					list-style: none;
 					font-weight: 500;
-					display: flex;
-					flex-direction: column;
 					gap: 0.5rem;
 				}
 
 				li span.tech {
-					margin-bottom: 0.5rem;
 					font-size: 1.1rem;
 					text-decoration: var(--color-burnt-sienna-1) wavy underline;
 					font-weight: 600;
@@ -159,20 +129,29 @@ export default defineEventHandler(async event => {
 					font-weight: 400;
 				}
 
+
+				hr {
+					border: none;
+					background: var(--color-burnt-sienna-3);
+				}
+
+				hr.vr {
+					width: 1px;
+					margin: 0 0.5rem;  
+				}
+
 				.playing {
 					display: flex;
 					flex-direction: column;
 					align-items: center;
 					gap: 1rem;
-					max-width: 300px;
-					flex: 1 1 250px;
+					width: 300px;
 					min-width: 200px;
-					width: 100%;
 				}
 
 				.track {
 					font-weight: 600;
-					max-width: 90%;
+					max-width: 100%;
 					overflow: hidden;
 					text-overflow: ellipsis;
 					white-space: nowrap;
@@ -180,32 +159,42 @@ export default defineEventHandler(async event => {
 				}
 
 				.album {
-					display: block;
 					border-radius: 12px;
 					width: 100%;
 					max-width: 200px;
 					aspect-ratio: 1 / 1;
 				}
 
+				.marquee {
+					width: 100%;
+					white-space: nowrap;
+					box-sizing: border-box;
+					overflow: hidden;
+				}
+
+				.now-playing {
+					font-weight: 600;
+					width: 100%;
+					animation: marquee 10s linear infinite;
+					padding-left: 100%;
+					display: inline-block;
+				}
+
 				.meter { 
-					height: 5px;
+					height: 6px;
 					position: relative;
 					background-color: var(--color-gunmetal);
 					overflow: hidden;
 					border-radius: 999px;
 					width: 100%;
 					max-width: 200px;
-					margin: 0 auto;
-				}
-
-				.meter span {
-					display: block;
-					height: 100%;
 				}
 
 				.progress {
+					display: block;
+					height: 100%;
 					background-color: var(--color-burnt-sienna-1);
-					animation: progressBar ${toSeconds(duration - progress)}s ease-in-out;
+					animation: progressBar ${toSeconds(duration - progress)}s ease;
 					animation-fill-mode:both;
 				}
 
@@ -213,30 +202,36 @@ export default defineEventHandler(async event => {
 					0% { width: ${nowPlaying?.isPlaying ? `${(progress / duration) * 100}%` : '0%'}; }
 					100% { width: 100%; }
 				}
+
+				@keyframes marquee {
+					0%   { transform: translate(0, 0); }
+					100% { transform: translate(-200%, 0); }
+				}
 			</style>
 			<div class="container" xmlns="http://www.w3.org/1999/xhtml">
 				<div class="about">
-					<p class="name">${NAME} <span class="username">${GH_USERNAME}</span></p>
-					<p class="description">${DESCRIPTION}</p>
-					<hr />
+					<div>
+						<p class="name">${NAME} <span class="username">${GH_USERNAME}</span></p>
+						<p class="description">${DESCRIPTION}</p>
+					</div>
 					<div class="tech-stack">
 						<p class="topic">Tech Stack</p>
 						<ul>
-							<li><span class="tech">${TECH_STACK[0].name}:</span><span class="tech-list"> ${TECH_STACK[0].list}</span></li>
-							<li><span class="tech">${TECH_STACK[1].name}:</span><span class="tech-list"> ${TECH_STACK[1].list}</span></li>
-							<li><span class="tech">${TECH_STACK[2].name}:</span><span class="tech-list"> ${TECH_STACK[2].list}</span></li>
-							<li><span class="tech">${TECH_STACK[3].name}:</span><span class="tech-list"> ${TECH_STACK[3].list}</span></li>
+						${TECH_STACK.map(tech => {
+							return `<li><span class="tech">${tech.name}:</span><span class="tech-list"> ${tech.list}</span></li>`
+						}).join('')}
 						</ul>
 					</div>
 				</div>
+				<hr class="vr" />
 				<div class="playing">
 					<p class="topic">Currently Playing</p>
 						${
 							nowPlaying?.track
 								? `<img class="album" src="data:image/jpg;base64,${nowPlaying.albumImageUrl}" alt="${nowPlaying.track}" />
-										<p class="track now-playing">${nowPlaying.artist} - ${nowPlaying.track}</p>
+										<p class="marquee"><span class="now-playing">${nowPlaying.artist} - ${nowPlaying.track}</span></p>
 										<div class="meter">
-											<span class="progress" style="width: ${nowPlaying.isPlaying ? `${(progress / duration) * 100}%` : '0%'}"></span>
+											<span class="progress"/>
 										</div>`
 								: `<p class="track">Nothing is playing right now</p>`
 						}
@@ -245,6 +240,7 @@ export default defineEventHandler(async event => {
 		</foreignObject>
 	</svg>`
 
+	setHeader(event, 'Cache-Control', 's-maxage=1, stale-while-revalidate')
 	setHeader(event, 'Content-Type', 'image/svg+xml')
 
 	return svg

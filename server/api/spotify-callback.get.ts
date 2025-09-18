@@ -1,5 +1,3 @@
-import { supabase } from '~/utils/supabase'
-
 export default defineEventHandler(async event => {
 	const code = getQuery(event).code as string
 	const clientId = useRuntimeConfig().spotifyClientId
@@ -24,14 +22,14 @@ export default defineEventHandler(async event => {
 	const refreshToken = data.refresh_token
 
 	if (refreshToken) {
-	const { error } = await supabase.from('spotify_tokens').upsert({
-  id: 'spotify-global-token',
-  refresh_token: data.refresh_token
-})
+		const { error } = await supabase.from('spotify_tokens').upsert({
+			id: 'spotify-global-token',
+			refresh_token: data.refresh_token
+		})
 
-if (error) {
-  console.error("Erro Supabase:", error)
-}
+		if (error) {
+			console.error('Erro Supabase:', error)
+		}
 	}
 
 	return sendRedirect(event, '/api/readme')

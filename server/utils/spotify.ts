@@ -1,5 +1,3 @@
-import { supabase } from '~/utils/supabase'
-
 export async function getAccessToken() {
 	const { data, error } = await supabase
 		.from('spotify_tokens')
