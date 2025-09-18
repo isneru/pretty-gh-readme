@@ -40,11 +40,22 @@ export async function getCurrentlyPlaying(accessToken: string) {
 	const data: SpotifyResponse = await resp.json()
 	if (!data || !data.item) return null
 
+	let albumImageUrl = ''
+	const imageUrl = data.item.album.images[0]?.url
+	if (imageUrl) {
+		try {
+			const imgResp = await fetch(imageUrl)
+			const imgBuffer = Buffer.from(await imgResp.arrayBuffer())
+			albumImageUrl = imgBuffer.toString('base64')
+		} catch (e) {
+			albumImageUrl = ''
+		}
+	}
 	return {
 		artist: data.item.artists.map(artist => artist.name).join(', '),
 		track: data.item.name,
 		album: data.item.album.name,
-		albumImageUrl: data.item.album.images[0]?.url,
+		albumImageUrl,
 		isPlaying: data.is_playing,
 		progressMs: data.progress_ms,
 		durationMs: data.item.duration_ms,

@@ -2,7 +2,7 @@ import { b64Outfit } from '~/utils/font'
 import { getAccessToken, getCurrentlyPlaying } from '~/utils/spotify'
 
 const GITHUB_README_WIDTH = '100%' //980 dont change this unless you want to make it smaller.
-const GITHUB_README_HEIGHT = '100%'
+const GITHUB_README_HEIGHT = 440
 
 const NAME = 'Diogo Nogueira'
 const GH_USERNAME = 'isneru'
@@ -146,7 +146,7 @@ export default defineEventHandler(async event => {
 					flex-direction: column;
 					align-items: center;
 					gap: 1rem;
-					max-width: 350px;
+					max-width: 300px;
 					flex: 1 1 250px;
 					min-width: 200px;
 					width: 100%;
@@ -198,15 +198,7 @@ export default defineEventHandler(async event => {
 
 				@media (max-width: 760px) {
 					.container {
-						flex-direction: column;
-					}
-					.playing {
-						align-items: flex-start;
-						min-width: 0;
-						max-width: 250px;
-					}
-					.about {
-						min-width: 0;
+						display: none;
 					}
 				}
 
@@ -230,8 +222,8 @@ export default defineEventHandler(async event => {
 					<p class="topic">Currently Playing</p>
 						${
 							nowPlaying?.track
-								? `<img class="album" src="${nowPlaying.albumImageUrl}" alt="${nowPlaying.track}" />
-										<p title="${nowPlaying.artist} - ${nowPlaying.track}" class="track">${nowPlaying.artist} - ${nowPlaying.track}</p>
+								? `<img class="album" src="data:image/jpg;base64,${nowPlaying.albumImageUrl}" alt="${nowPlaying.track}" />
+										<p class="track now-playing">${nowPlaying.artist} - ${nowPlaying.track}</p>
 										<div class="meter">
 											<span class="progress" style="width: ${nowPlaying.isPlaying ? `${(progress / duration) * 100}%` : '0%'}"></span>
 										</div>`
