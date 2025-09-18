@@ -6,7 +6,7 @@ export default defineNuxtConfig({
 		spotifyRedirectUri: process.env.SPOTIFY_REDIRECT_URI,
 		supabaseUrl: process.env.SUPABASE_URL,
 		supabaseKey: process.env.SUPABASE_KEY,
-		setupSecret: process.env.SETUP_SECRET,
+		setupSecret: process.env.SETUP_SECRET
 	},
 	compatibilityDate: '2025-07-15',
 	devtools: { enabled: true },

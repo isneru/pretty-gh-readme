@@ -1,8 +1,8 @@
 import { b64Outfit } from '~/utils/font'
 import { getAccessToken, getCurrentlyPlaying } from '~/utils/spotify'
 
-const GITHUB_README_WIDTH = '100%' //980 dont change this unless you want to make it smaller.
-const GITHUB_README_HEIGHT = 440
+const GITHUB_README_WIDTH = '100%'
+const GITHUB_README_HEIGHT = 400
 
 const NAME = 'Diogo Nogueira'
 const GH_USERNAME = 'isneru'
@@ -31,12 +31,12 @@ export default defineEventHandler(async event => {
 		<foreignObject width="100%" height="100%">
 			<style>
 				@font-face {
-					font-family: 'Outfit';
-					src: url('data:font/woff2;base64,${b64Outfit}') format('woff2');
-					font-weight: 100 900;
-					font-style: normal;
-				}
-
+						font-family: 'Outfit';
+						src: url('data:font/woff2;base64,${b64Outfit}') format('woff2');
+						font-weight: 100 900;
+						font-style: normal;
+					}
+				
 				:root {
 					--color-burnt-sienna-1: #d77a61;
 					--color-burnt-sienna-2: #d8b4a0;
@@ -44,8 +44,8 @@ export default defineEventHandler(async event => {
 					--color-antiflash-white: #eff1f3;
 					--color-gunmetal: #223843;
 					--color-gunmetal-muted: #5e6e7e;
-				}
-
+					}
+					
 				* {
 					font-smooth: antialiased;
 					-webkit-font-smoothing: antialiased;
@@ -58,14 +58,31 @@ export default defineEventHandler(async event => {
 				}
 
 				.container {
-					display: flex;
-					flex-wrap: wrap;
+					display: grid;
+					grid-template-areas:
+						"a a c"
+						"b b c"
+						"b b c";
+					grid-template-columns: 1fr 1fr 200px;
 					width: 100%;
+					height: 100%;
 					background: var(--color-antiflash-white);
 					padding: 2rem;
 					gap: 3rem;
 					border-radius: 30px;
 					box-sizing: border-box;
+				}
+
+				.container > .about {
+					grid-area: a;
+				}
+
+				.container > .tech-stack {
+					grid-area: b;
+				}
+
+				.container > .playing {
+					grid-area: c;
 				}
 
 				.about {
@@ -123,6 +140,7 @@ export default defineEventHandler(async event => {
 				}
 
 				ul {
+					margin-top: 0.5rem;
 					list-style: none;
 					font-weight: 500;
 					display: flex;
@@ -195,28 +213,21 @@ export default defineEventHandler(async event => {
 					0% { width: ${nowPlaying?.isPlaying ? `${(progress / duration) * 100}%` : '0%'}; }
 					100% { width: 100%; }
 				}
-
-				@media (max-width: 760px) {
-					.container {
-						display: none;
-					}
-				}
-
-			
-				}
 			</style>
 			<div class="container" xmlns="http://www.w3.org/1999/xhtml">
 				<div class="about">
 					<p class="name">${NAME} <span class="username">${GH_USERNAME}</span></p>
 					<p class="description">${DESCRIPTION}</p>
 					<hr />
-					<p class="topic">Tech Stack</p>
-					<ul>
-						<li><span class="tech">${TECH_STACK[0].name}:</span><span class="tech-list"> ${TECH_STACK[0].list}</span></li>
-						<li><span class="tech">${TECH_STACK[1].name}:</span><span class="tech-list"> ${TECH_STACK[1].list}</span></li>
-						<li><span class="tech">${TECH_STACK[2].name}:</span><span class="tech-list"> ${TECH_STACK[2].list}</span></li>
-						<li><span class="tech">${TECH_STACK[3].name}:</span><span class="tech-list"> ${TECH_STACK[3].list}</span></li>
-					</ul>
+					<div class="tech-stack">
+						<p class="topic">Tech Stack</p>
+						<ul>
+							<li><span class="tech">${TECH_STACK[0].name}:</span><span class="tech-list"> ${TECH_STACK[0].list}</span></li>
+							<li><span class="tech">${TECH_STACK[1].name}:</span><span class="tech-list"> ${TECH_STACK[1].list}</span></li>
+							<li><span class="tech">${TECH_STACK[2].name}:</span><span class="tech-list"> ${TECH_STACK[2].list}</span></li>
+							<li><span class="tech">${TECH_STACK[3].name}:</span><span class="tech-list"> ${TECH_STACK[3].list}</span></li>
+						</ul>
+					</div>
 				</div>
 				<div class="playing">
 					<p class="topic">Currently Playing</p>
@@ -235,7 +246,6 @@ export default defineEventHandler(async event => {
 	</svg>`
 
 	setHeader(event, 'Content-Type', 'image/svg+xml')
-	setHeader(event, 'Cache-Control', 's-maxage=1, stale-while-revalidate')
 
 	return svg
 })
