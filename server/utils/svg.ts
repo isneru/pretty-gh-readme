@@ -39,7 +39,7 @@ export function getSVG({ screen, playing }: Props) {
 	let duration = playing?.isPlaying ? playing.durationMs : 0
 
 	return `
-	<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 ${width} ${height}" aria-labelledby="title" role="img">
+	<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" viewBox="0 0 ${width} ${height}" aria-labelledby="title" role="img">
 		<title id="title">${GH_USERNAME}'s readme</title>
 		<foreignObject width="100%" height="100%">
 			<style>
