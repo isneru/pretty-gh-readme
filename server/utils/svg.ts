@@ -1,5 +1,9 @@
-const GITHUB_README_WIDTH = 400
-const GITHUB_README_HEIGHT = 700
+// this will return the svg string, the container's and viewbox height and width
+// aswell as different versions according to whether music is playing or not
+
+// mobile max-width: 600px
+// tablet max-width: 900px
+// desktop min-width: >900px
 
 const NAME = 'Diogo Nogueira'
 const GH_USERNAME = 'isneru'
@@ -13,17 +17,29 @@ const TECH_STACK = [
 	{ name: 'tools', list: 'Git, VS Code, Figma, Cloudflare' }
 ]
 
-export default defineEventHandler(async event => {
-	const accessToken = await getAccessToken()
-	const nowPlaying = await getCurrentlyPlaying(accessToken)
+export const getSVGSizes = (isPlaying: boolean) => {
+	return {
+		mobile: { width: 400, height: isPlaying ? 720 : 400 },
+		tablet: { width: 0, height: 0 }, // !TODO decide if tablet will have column or row layout
+		desktop: { width: isPlaying ? 800 : 480, height: isPlaying ? 370 : 350 }
+	}
+}
+
+type Props = {
+	screen: keyof ReturnType<typeof getSVGSizes>
+	playing: Awaited<ReturnType<typeof getCurrentlyPlaying>>
+}
+
+export function getSVG({ screen, playing }: Props) {
+	const { width, height } = getSVGSizes(!!playing)[screen]
 
 	const toSeconds = (ms: number) => Math.floor(ms / 1000)
 
-	let progress = nowPlaying?.isPlaying ? nowPlaying.progressMs : 0
-	let duration = nowPlaying?.isPlaying ? nowPlaying.durationMs : 0
+	let progress = playing?.isPlaying ? playing.progressMs : 0
+	let duration = playing?.isPlaying ? playing.durationMs : 0
 
-	const svg = `
-	<svg xmlns="http://www.w3.org/2000/svg" width="${GITHUB_README_WIDTH}" height="${GITHUB_README_HEIGHT}" aria-labelledby="title" role="img">
+	return `
+	<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 ${width} ${height}" aria-labelledby="title" role="img">
 		<title id="title">${GH_USERNAME}'s readme</title>
 		<foreignObject width="100%" height="100%">
 			<style>
@@ -44,7 +60,6 @@ export default defineEventHandler(async event => {
 				}
 					
 				* {
-          font-size: 14px;
 					font-smooth: antialiased;
 					-webkit-font-smoothing: antialiased;
 					-moz-osx-font-smoothing: grayscale;
@@ -57,22 +72,23 @@ export default defineEventHandler(async event => {
 
 				.container {
 					display: flex;
-					flex-direction: column;
+					flex-direction: ${screen === 'mobile' ? 'column' : 'row'};
 					width: 100%;
 					height: 100%;
 					background: var(--color-antiflash-white);
 					padding: 2rem;
 					gap: 2rem;
+					justify-content: ${screen === 'mobile' ? 'center' : 'space-between'};
 					border-radius: 30px;
 					box-sizing: border-box;
 				}
 
-				.about {
-					display: flex;
-					flex-direction: column;
-					justify-content: space-between;
-					gap: 2rem;
-				}
+					.desktop-container {
+						display: flex;
+						flex-direction: column;
+						gap: 2rem;
+						flex: 1;
+					}
 
 				.name {
 					font-weight: 800;
@@ -101,7 +117,9 @@ export default defineEventHandler(async event => {
 				.topic {
 					font-weight: 700;
 					font-size: 1.5rem;
+					${screen === 'mobile' ? 'width: 100%;' : ''}
 					margin-left: -1ch;
+
 				}
 
 				.topic::before {
@@ -130,42 +148,21 @@ export default defineEventHandler(async event => {
 					font-weight: 400;
 				}
 
-
 				hr {
 					border: none;
 					background: var(--color-burnt-sienna-3);
-          height: 1px;
-          width: auto;
-          margin: 0.5rem 0;
+					margin: 0;
+					height: ${screen === 'mobile' ? '1px' : '100%'};
+					width: ${screen === 'mobile' ? '100%' : '1px'};
 				}
 
-				hr.vr {
-					width: 1px;
-          height: auto;
-					margin: 0 0.5rem;  
-				}
-
-				.playing {
+				${
+					playing
+						? `.playing {
 					display: flex;
 					flex-direction: column;
 					align-items: center;
 					gap: 1rem;
-					width: 300px;
-					min-width: 200px;
-				}
-
-        .topic.music {
-          text-align: left;
-          width: 100%;
-        }
-
-				.track {
-					font-weight: 600;
-					max-width: 100%;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-					text-align: center;
 				}
 
 				.album {
@@ -182,7 +179,7 @@ export default defineEventHandler(async event => {
 					overflow: hidden;
 				}
 
-				.now-playing {
+				.track-marquee {
 					font-weight: 600;
 					width: 100%;
 					animation: marquee 10s linear infinite;
@@ -209,18 +206,20 @@ export default defineEventHandler(async event => {
 				}
 
 				@keyframes progressBar {
-					0% { width: ${nowPlaying?.isPlaying ? `${(progress / duration) * 100}%` : '0%'}; }
+					0% { width: ${playing?.isPlaying ? `${(progress / duration) * 100}%` : '0%'}; }
 					100% { width: 100%; }
 				}
 
 				@keyframes marquee {
 					0%   { transform: translate(0, 0); }
 					100% { transform: translate(-200%, 0); }
+				}`
+						: ``
 				}
 			</style>
 			<div class="container" xmlns="http://www.w3.org/1999/xhtml">
-				<div class="about">
-					<div>
+				${screen !== 'mobile' ? '<div class="desktop-container">' : ''}
+					<div class="about">
 						<p class="name">${NAME} <span class="username">${GH_USERNAME}</span></p>
 						<p class="description">${DESCRIPTION}</p>
 					</div>
@@ -231,27 +230,25 @@ export default defineEventHandler(async event => {
 							return `<li><span class="tech">${tech.name}:</span><span class="tech-list"> ${tech.list}</span></li>`
 						}).join('')}
 						</ul>
-					</div>
+					${screen !== 'mobile' ? '</div>' : ''}
 				</div>
-				<hr class="vr" />
-				<div class="playing">
-					<p class="topic music">Currently Playing</p>
+				${
+					playing
+						? `<div class="playing">
+						<p class="topic">Currently Playing</p>
 						${
-							nowPlaying?.track
-								? `<img class="album" src="data:image/jpg;base64,${nowPlaying.albumImageUrl}" alt="${nowPlaying.track}" />
-										<p class="marquee"><span class="now-playing">${nowPlaying.artist} - ${nowPlaying.track}</span></p>
-										<div class="meter">
-											<span class="progress"/>
-										</div>`
-								: `<p class="track">Nothing is playing right now</p>`
+							playing.track
+								? `<img class="album" src="data:image/jpg;base64,${playing.albumImageUrl}" alt="${playing.track}" />
+									 <p class="marquee"><span class="track-marquee">${playing.artist} - ${playing.track}</span></p>
+								   <div class="meter">
+									 	<span class="progress"/>
+								   </div>`
+								: ``
 						}
-						</div>
+						</div>`
+						: ``
+				}
 					</div>
 		</foreignObject>
 	</svg>`
-
-	setHeader(event, 'Cache-Control', 's-maxage=1, stale-while-revalidate')
-	setHeader(event, 'Content-Type', 'image/svg+xml')
-
-	return svg
-})
+}
