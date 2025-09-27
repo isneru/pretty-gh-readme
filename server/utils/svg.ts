@@ -30,6 +30,16 @@ type Props = {
 	playing: Awaited<ReturnType<typeof getCurrentlyPlaying>>
 }
 
+function escapeXML(str: string) {
+	if (!str) return ''
+	return str
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;')
+}
+
 export function getSVG({ screen, playing }: Props) {
 	const { width, height } = getSVGSizes(!!playing)[screen]
 
@@ -163,6 +173,7 @@ export function getSVG({ screen, playing }: Props) {
 					flex-direction: column;
 					align-items: center;
 					gap: 1rem;
+					${screen !== 'mobile' ? 'max-width: 300px;' : ''}
 				}
 
 				.album {
@@ -238,8 +249,8 @@ export function getSVG({ screen, playing }: Props) {
 						<p class="topic">Currently Playing</p>
 						${
 							playing.track
-								? `<img class="album" src="data:image/jpg;base64,${playing.albumImageUrl}" alt="${playing.track}" />
-									 <p class="marquee"><span class="track-marquee">${playing.artist} - ${playing.track}</span></p>
+								? `<img class="album" src="data:image/jpg;base64,${playing.albumImageUrl}" alt="${escapeXML(playing.track)}" />
+									 <p class="marquee"><span class="track-marquee">${escapeXML(playing.artist)} - ${escapeXML(playing.track)}</span></p>
 								   <div class="meter">
 									 	<span class="progress"/>
 								   </div>`
