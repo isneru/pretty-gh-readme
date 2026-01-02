@@ -1,8 +1,8 @@
 export default defineEventHandler(async event => {
 	const q = getQuery(event).screen?.toString().toLowerCase()
-	let screen = q as 'mobile' | 'tablet' | 'desktop'
+	let screen = q as 'mobile' | 'desktop'
 
-	if (q !== 'mobile' && q !== 'tablet' && q !== 'desktop') {
+	if (q !== 'mobile' && q !== 'desktop') {
 		screen = 'desktop'
 	}
 

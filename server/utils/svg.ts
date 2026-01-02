@@ -1,33 +1,10 @@
-// this will return the svg string, the container's and viewbox height and width
-// aswell as different versions according to whether music is playing or not
+import { me } from '~~/server/utils/me'
 
-// mobile max-width: 600px
-// tablet max-width: 900px
-// desktop min-width: >900px
-
-const NAME = 'Diogo Nogueira'
-const GH_USERNAME = 'isneru'
-const DESCRIPTION =
-	'22-year-old autodidactic developer studying Computer and Telecom Engineering'
-
-const TECH_STACK = [
-	{ name: 'frontend', list: 'React, Nuxt, Svelte, Astro, Tailwind' },
-	{ name: 'backend', list: 'JS/TS, Node.js, PHP, Java, C, C++' },
-	{ name: 'databases', list: 'MongoDB, SQL, Prisma ORM' },
-	{ name: 'tools', list: 'Git, VS Code, Figma, Cloudflare' }
-]
-
-export const getSVGSizes = (isPlaying: boolean) => {
+export function getSVGSizes(isPlaying: boolean) {
 	return {
 		mobile: { width: 400, height: isPlaying ? 720 : 400 },
-		tablet: { width: 0, height: 0 }, // !TODO decide if tablet will have column or row layout
 		desktop: { width: isPlaying ? 800 : 480, height: isPlaying ? 370 : 350 }
 	}
-}
-
-type Props = {
-	screen: keyof ReturnType<typeof getSVGSizes>
-	playing: Awaited<ReturnType<typeof getCurrentlyPlaying>>
 }
 
 function escapeXML(str: string) {
@@ -40,7 +17,12 @@ function escapeXML(str: string) {
 		.replace(/'/g, '&apos;')
 }
 
-export function getSVG({ screen, playing }: Props) {
+type Args = {
+	screen: keyof ReturnType<typeof getSVGSizes>
+	playing: Awaited<ReturnType<typeof getCurrentlyPlaying>>
+}
+
+export function getSVG({ screen, playing }: Args) {
 	const { width, height } = getSVGSizes(!!playing)[screen]
 
 	const toSeconds = (ms: number) => Math.floor(ms / 1000)
@@ -49,8 +31,8 @@ export function getSVG({ screen, playing }: Props) {
 	let duration = playing?.isPlaying ? playing.durationMs : 0
 
 	return `
-	<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" viewBox="0 0 ${width} ${height}" aria-labelledby="title" role="img">
-		<title id="title">${GH_USERNAME}'s readme</title>
+	<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" preserveAspectRatio="xMaxYMid meet" viewBox="0 0 ${width} ${height}" aria-labelledby="title" role="img">
+		<title id="title">${me.GH_USERNAME}'s readme</title>
 		<foreignObject width="100%" height="100%">
 			<style>
 				@font-face {
@@ -59,7 +41,7 @@ export function getSVG({ screen, playing }: Props) {
 					font-weight: 100 900;
 					font-style: normal;
 				}
-				
+
 				:root {
 					--color-burnt-sienna-1: #d77a61;
 					--color-burnt-sienna-2: #d8b4a0;
@@ -231,13 +213,13 @@ export function getSVG({ screen, playing }: Props) {
 			<div class="container" xmlns="http://www.w3.org/1999/xhtml">
 				${screen !== 'mobile' ? '<div class="desktop-container">' : ''}
 					<div class="about">
-						<p class="name">${NAME} <span class="username">${GH_USERNAME}</span></p>
-						<p class="description">${DESCRIPTION}</p>
+						<p class="name">${me.NAME} <span class="username">${me.GH_USERNAME}</span></p>
+						<p class="description">${me.DESCRIPTION}</p>
 					</div>
 					<div class="tech-stack">
 						<p class="topic">Tech Stack</p>
 						<ul>
-						${TECH_STACK.map(tech => {
+						${me.TECH_STACK.map(tech => {
 							return `<li><span class="tech">${tech.name}:</span><span class="tech-list"> ${tech.list}</span></li>`
 						}).join('')}
 						</ul>
@@ -246,17 +228,17 @@ export function getSVG({ screen, playing }: Props) {
 				${
 					playing
 						? `<div class="playing">
-						<p class="topic">Currently Playing</p>
-						${
-							playing.track
-								? `<img class="album" src="data:image/jpg;base64,${playing.albumImageUrl}" alt="${escapeXML(playing.track)}" />
-									 <p class="marquee"><span class="track-marquee">${escapeXML(playing.artist)} - ${escapeXML(playing.track)}</span></p>
-								   <div class="meter">
-									 	<span class="progress"/>
-								   </div>`
-								: ``
-						}
-						</div>`
+								<p class="topic">Currently Playing</p>
+								<img class="album" src="data:image/jpg;base64,${
+									playing.albumImageUrl
+								}" alt="${escapeXML(playing.track)}" />
+								<p class="marquee"><span class="track-marquee">${escapeXML(
+									playing.artist
+								)} - ${escapeXML(playing.track)}</span></p>
+								<div class="meter">
+									<span class="progress"/>
+								</div>
+							</div>`
 						: ``
 				}
 					</div>

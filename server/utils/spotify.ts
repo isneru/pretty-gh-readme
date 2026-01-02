@@ -36,10 +36,11 @@ export async function getCurrentlyPlaying(accessToken: string) {
 
 	if (resp.status !== 200) return null
 	const data: SpotifyResponse = await resp.json()
-	if (!data || !data.item) return null
+	if (!data || !data.item || !data.is_playing) return null
 
 	let albumImageUrl = ''
 	const imageUrl = data.item.album.images[0]?.url
+
 	if (imageUrl) {
 		try {
 			const imgResp = await fetch(imageUrl)
@@ -49,6 +50,7 @@ export async function getCurrentlyPlaying(accessToken: string) {
 			albumImageUrl = ''
 		}
 	}
+
 	return {
 		artist: data.item.artists.map(artist => artist.name).join(', '),
 		track: data.item.name,

@@ -3,7 +3,7 @@ export default defineEventHandler(async event => {
 	const redirectUri = useRuntimeConfig().spotifyRedirectUri
 
 	const query = getQuery(event)
-	
+
 	if (query.secret !== useRuntimeConfig().setupSecret) {
 		throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
 	}
